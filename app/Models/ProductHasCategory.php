@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductHasCategory extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = ["product_id", "category_id"];
+
+    public $timestamps = false;
 }

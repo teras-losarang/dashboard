@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProductVariant extends Model
 {
-    use SoftDeletes;
-
     protected $fillable = [
         "product_id",
+        "name",
         "price",
         "status",
     ];
+
+    public $timestamps = false;
 }

@@ -15,10 +15,9 @@ return new class extends Migration
         Schema::create('product_variants', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(Product::class)->references("id")->on("products");
+            $table->string("name", 150)->default("-");
             $table->unsignedInteger("price")->default(0);
             $table->tinyInteger("status")->default(1);
-            $table->softDeletes();
-            $table->timestamps();
         });
     }
 

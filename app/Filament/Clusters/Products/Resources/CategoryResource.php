@@ -12,10 +12,12 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -49,7 +51,13 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 TextColumn::make("name")->description(fn($record): String => $record->description),
-                ImageColumn::make("image")->circular()
+                ImageColumn::make("image")->circular(),
+                ToggleColumn::make("status")->label("Status")->afterStateUpdated(function ($state, $record) {
+                    Notification::make()
+                        ->title('Update status successfully')
+                        ->success()
+                        ->send();
+                }),
             ])
             ->filters([
                 //

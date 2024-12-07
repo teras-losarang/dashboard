@@ -17,8 +17,6 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Product::class)->references("id")->on("products");
             $table->foreignIdFor(Category::class)->references("id")->on("categories");
-            $table->softDeletes();
-            $table->timestamps();
         });
     }
 

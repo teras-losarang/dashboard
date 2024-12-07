@@ -14,6 +14,8 @@ class CreateUser extends CreateRecord
 {
     protected static string $resource = UserResource::class;
 
+    protected static ?string $title = 'Create Customer';
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $data['password'] = Hash::make('passowrd');
@@ -21,7 +23,8 @@ class CreateUser extends CreateRecord
         return $data;
     }
 
-    protected function afterCreate(): void {
+    protected function afterCreate(): void
+    {
         DB::transaction(function () {
             $record = $this->record;
             $record->assignRole(Role::where('id', User::ROLE_CUSTOMER)->first());

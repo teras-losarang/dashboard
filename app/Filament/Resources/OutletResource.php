@@ -32,7 +32,7 @@ class OutletResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
 
-    protected static ?string $navigationGroup = 'Data Master';
+    protected static ?string $navigationGroup = 'Shop';
 
     protected static ?string $slug = 'data-master/outlet';
 
