@@ -16,6 +16,7 @@ class Category extends Model
         'slug',
         'description',
         'image',
+        'type',
         'status',
     ];
 
@@ -26,7 +27,11 @@ class Category extends Model
         });
 
         static::updated(function (Category $category) {
-            Storage::delete($category->getOriginal('image'));
+            $imageToDelete = array_diff([$category->getOriginal('image')], [$category->attributes["image"]]);
+
+            foreach ($imageToDelete as $image) {
+                Storage::delete($image);
+            }
         });
     }
 
