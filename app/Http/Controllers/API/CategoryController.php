@@ -95,10 +95,18 @@ class CategoryController extends Controller
         });
 
         if (($request->has("category_id") && $request->category_id > 0) || ($request->has("slug") && $request->slug)) {
+            if (count($categories->items()) < 1) {
+                return MessageFixer::error("Data category not found.");
+            }
+
             return MessageFixer::render(MessageFixer::DATA_OK, "Success", $categories[0]);
         }
 
-        return MessageFixer::render(MessageFixer::DATA_OK, "Success", $categories->items(), ($categories instanceof LengthAwarePaginator) && count($categories->items()) > 0  ? [
+        if (count($categories->items()) < 1) {
+            return MessageFixer::error("Data category is empty.");
+        }
+
+        return MessageFixer::render(code: MessageFixer::DATA_OK, message: "Success", data: $categories->items(), paginate: ($categories instanceof LengthAwarePaginator) && count($categories->items()) > 0  ? [
             "current_page" => $categories->currentPage(),
             "last_page" => $categories->lastPage(),
             "total" => $categories->total(),
