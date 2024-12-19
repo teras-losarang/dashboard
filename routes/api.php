@@ -3,8 +3,12 @@
 use App\Facades\MessageFixer;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\DistrictController;
 use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\ProductController;
+use App\Http\Controllers\API\ProvinceController;
+use App\Http\Controllers\API\RegencyController;
+use App\Http\Controllers\API\VillageController;
 use App\Http\Middleware\XAuthMiddleware;
 use App\Http\Middleware\XSignatureMiddleware;
 use Illuminate\Http\Request;
@@ -27,6 +31,13 @@ Route::prefix('auth')->group(function () {
 Route::middleware([XSignatureMiddleware::class])->group(function () {
     Route::post('/category', [CategoryController::class, 'index']);
     Route::post('/product', [ProductController::class, 'index']);
+
+    Route::prefix('region')->group(function () {
+        Route::post('/province', [ProvinceController::class, 'index']);
+        Route::post('/regency', [RegencyController::class, 'index']);
+        Route::post('/district', [DistrictController::class, 'index']);
+        Route::post('/village', [VillageController::class, 'index']);
+    });
 });
 
 Route::middleware([XAuthMiddleware::class, XSignatureMiddleware::class])->group(function () {

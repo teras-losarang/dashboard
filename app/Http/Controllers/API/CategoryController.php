@@ -26,51 +26,6 @@ class CategoryController extends Controller
         $this->category = new Category();
     }
 
-    /**
-     * @OA\Post(
-     *      path="/api/category",
-     *      operationId="CategoryShow",
-     *      tags={"Category"},
-     *      summary="CategoryShow",
-     *      description="CategoryShow",
-     *     @OA\RequestBody(
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 @OA\Property(
-     *                     property="search",
-     *                     type="string"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="type",
-     *                     type="int"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="category_id",
-     *                     type="int"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="slug",
-     *                     type="string"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="page",
-     *                     type="int"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="per_page",
-     *                     type="int"
-     *                 ),
-     *                 example={"search": "", "type": 0, "category_id": 0, "slug": "", "page": 1, "per_page": 10}
-     *             )
-     *         ),
-     *     ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="SUCCESS/ERROR by code in json result",
-     *       ),
-     * )
-     */
     public function index(Request $request)
     {
         $categories = app(Pipeline::class)
