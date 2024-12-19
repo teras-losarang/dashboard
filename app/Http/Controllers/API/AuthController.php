@@ -11,6 +11,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -158,6 +159,44 @@ class AuthController extends Controller
      */
     public function me()
     {
-        return MessageFixer::render(code: MessageFixer::DATA_OK, message: "Success", data: request()->user());
+        $user = request()->user();
+        if ($user->outlet && $user->outlet->status == 1) {
+            $user->is_outlet = 1;
+        } else {
+            $user->is_outlet = 0;
+        }
+
+        unset($user->outlet);
+
+        return MessageFixer::render(code: MessageFixer::DATA_OK, message: "Success", data: $user);
+    }
+
+    public function signature(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            "path" => "required"
+        ]);
+
+        if ($validator->fails()) {
+            return MessageFixer::render(code: MessageFixer::DATA_ERROR, message: "Fill data correctly!", data: $validator->errors());
+        }
+
+        $method = "POST";
+        $secretKey = env("SECRET_API");
+        $timestamp = time();
+
+        $params = http_build_query([
+            "method" => $method,
+            "path" => $request->path,
+            "timestamp" => $timestamp
+        ]);
+        $params = base64_encode($params);
+
+        $signature = hash_hmac("sha256", $params, $secretKey);
+
+        return MessageFixer::render(code: MessageFixer::DATA_OK, message: "Success", data: [
+            "timestamp" => $timestamp,
+            "signature" => $signature,
+        ]);
     }
 }

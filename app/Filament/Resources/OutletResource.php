@@ -17,10 +17,12 @@ use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Wizard;
 use Filament\Forms\Components\Wizard\Step;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -123,6 +125,12 @@ class OutletResource extends Resource
                 ImageColumn::make('images')->label('Thumbnail')->stacked()->getStateUsing(fn($record) => json_decode($record->images, true)),
                 TextColumn::make('name'),
                 TextColumn::make('user.name')->label('Customer'),
+                ToggleColumn::make("status")->label("Status")->afterStateUpdated(function ($state, $record) {
+                    Notification::make()
+                        ->title('Update status successfully')
+                        ->success()
+                        ->send();
+                }),
             ])
             ->filters([
                 //

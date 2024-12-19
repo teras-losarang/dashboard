@@ -42,6 +42,8 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'hidden',
+        'deleted_at',
     ];
 
     /**
@@ -57,7 +59,7 @@ class User extends Authenticatable
         ];
     }
 
-    public function outlet() : HasOne
+    public function outlet(): HasOne
     {
         return $this->hasOne(Outlet::class, 'user_id', 'id');
     }

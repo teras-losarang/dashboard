@@ -16,6 +16,7 @@ class CreateOutlet extends CreateRecord
     {
         $data['images'] = json_encode($data['images']);
         $data['operational_hour'] = json_encode($data['operational_hour']);
+
         return $data;
     }
 

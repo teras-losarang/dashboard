@@ -30,6 +30,13 @@ class Product extends Model
         'images' => 'json',
     ];
 
+    protected $hidden = [
+        'deleted_at',
+        'created_at',
+        'updated_at',
+        'outlet_id'
+    ];
+
     protected static function booted()
     {
         static::deleted(function (Product $product) {
@@ -50,7 +57,7 @@ class Product extends Model
     public function setNameAttribute($value)
     {
         $this->attributes["name"] = $value;
-        $this->attributes["slug"] = Str::slug($value);
+        $this->attributes["slug"] = Str::slug($value . "-" . Str::random(6));
         $this->attributes["created_by"] = request()->user()->name;
     }
 

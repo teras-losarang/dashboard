@@ -3,6 +3,10 @@
 use App\Facades\MessageFixer;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\OutletController;
+use App\Http\Controllers\API\ProductController;
+use App\Http\Middleware\XAuthMiddleware;
+use App\Http\Middleware\XSignatureMiddleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -13,10 +17,29 @@ Route::get('/login-checker', function (Request $request) {
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/signature', [AuthController::class, 'signature']);
 
-    Route::middleware(['auth:sanctum'])->group(function () {
+    Route::middleware([XAuthMiddleware::class, XSignatureMiddleware::class])->group(function () {
         Route::post('/me', [AuthController::class, 'me']);
     });
 });
 
-Route::post('/category', [CategoryController::class, 'index']);
+Route::middleware([XSignatureMiddleware::class])->group(function () {
+    Route::post('/category', [CategoryController::class, 'index']);
+    Route::post('/product', [ProductController::class, 'index']);
+});
+
+Route::middleware([XAuthMiddleware::class, XSignatureMiddleware::class])->group(function () {
+    Route::prefix('product')->group(function () {
+        Route::post('/store', [ProductController::class, 'store']);
+        Route::post('/update', [ProductController::class, 'update']);
+        Route::post('/delete', [ProductController::class, 'destroy']);
+    });
+
+    Route::prefix('outlet')->group(function () {
+        Route::post('/register', [OutletController::class, 'register']);
+        Route::post('/show', [OutletController::class, 'show']);
+        Route::post('/operational-hour', [OutletController::class, 'updateOperationalHour']);
+        Route::post('/update', [OutletController::class, 'update']);
+    });
+});

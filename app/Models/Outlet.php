@@ -23,12 +23,19 @@ class Outlet extends Model
         'address',
         'operational_hour',
         'created_by',
+        'status',
         'images',
     ];
 
     protected $casts = [
         'operational_hour' => 'array',
         'images' => 'json',
+    ];
+
+    protected $hidden = [
+        'user_id',
+        'status',
+        'deleted_at',
     ];
 
     protected static function booted()
@@ -51,7 +58,7 @@ class Outlet extends Model
     public function setNameAttribute($value)
     {
         $this->attributes["name"] = $value;
-        $this->attributes["slug"] = Str::slug($value);
+        $this->attributes["slug"] = Str::slug($value . "-" . Str::random(6));
         $this->attributes["created_by"] = request()->user()->name;
     }
 

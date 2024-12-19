@@ -29,10 +29,10 @@ class CategoryController extends Controller
     /**
      * @OA\Post(
      *      path="/api/category",
-     *      operationId="Show",
+     *      operationId="CategoryShow",
      *      tags={"Category"},
-     *      summary="Show",
-     *      description="Show",
+     *      summary="CategoryShow",
+     *      description="CategoryShow",
      *     @OA\RequestBody(
      *         @OA\MediaType(
      *             mediaType="application/json",

@@ -14,5 +14,13 @@ class ProductVariant extends Model
         "status",
     ];
 
+    protected $hidden = [
+        'deleted_at',
+        'created_at',
+        'updated_at',
+        'product_id',
+        'status',
+    ];
+
     public $timestamps = false;
 }
