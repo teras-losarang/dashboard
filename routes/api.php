@@ -1,6 +1,7 @@
 <?php
 
 use App\Facades\MessageFixer;
+use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\DistrictController;
@@ -52,5 +53,12 @@ Route::middleware([XAuthMiddleware::class, XSignatureMiddleware::class])->group(
         Route::post('/show', [OutletController::class, 'show']);
         Route::post('/operational-hour', [OutletController::class, 'updateOperationalHour']);
         Route::post('/update', [OutletController::class, 'update']);
+    });
+
+    Route::prefix('address')->group(function () {
+        Route::post('/', [AddressController::class, 'index']);
+        Route::post('/store', [AddressController::class, 'store']);
+        Route::post('/update', [AddressController::class, 'update']);
+        Route::post('/delete', [AddressController::class, 'destroy']);
     });
 });

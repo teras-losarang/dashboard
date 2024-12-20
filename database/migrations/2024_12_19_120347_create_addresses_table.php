@@ -3,6 +3,7 @@
 use App\Models\District;
 use App\Models\Province;
 use App\Models\Regency;
+use App\Models\User;
 use App\Models\Village;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -17,6 +18,7 @@ return new class extends Migration
     {
         Schema::create('addresses', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(User::class)->references("id")->on("users")->cascadeOnDelete();
             $table->foreignIdFor(Province::class);
             $table->foreignIdFor(Regency::class);
             $table->foreignIdFor(District::class);
