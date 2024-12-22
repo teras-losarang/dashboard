@@ -5,6 +5,7 @@ use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CategoryController;
 use App\Http\Controllers\API\DistrictController;
+use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\OutletController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ProvinceController;
@@ -60,5 +61,11 @@ Route::middleware([XAuthMiddleware::class, XSignatureMiddleware::class])->group(
         Route::post('/store', [AddressController::class, 'store']);
         Route::post('/update', [AddressController::class, 'update']);
         Route::post('/delete', [AddressController::class, 'destroy']);
+    });
+
+    Route::prefix('order')->group(function () {
+        Route::post('/', [OrderController::class, 'index']);
+        Route::post('/store', [OrderController::class, 'store']);
+        Route::post('/update-status', [OrderController::class, 'updateStatus']);
     });
 });
