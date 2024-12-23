@@ -36,8 +36,6 @@ class OutletResource extends Resource
 
     protected static ?string $navigationGroup = 'Shop';
 
-    protected static ?string $slug = 'data-master/outlet';
-
     public static function form(Form $form): Form
     {
         return $form
