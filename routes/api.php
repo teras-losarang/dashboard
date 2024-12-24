@@ -32,11 +32,11 @@ Route::prefix('auth')->group(function () {
 });
 
 
-Route::get('/outlet', [OutletController::class, 'index']);
 Route::middleware([XSignatureMiddleware::class])->group(function () {
     Route::post('/config', ConfigController::class);
     Route::post('/category', [CategoryController::class, 'index']);
     Route::post('/product', [ProductController::class, 'index']);
+    Route::post('/outlet', [OutletController::class, 'index']);
 
     Route::prefix('region')->group(function () {
         Route::post('/province', [ProvinceController::class, 'index']);
