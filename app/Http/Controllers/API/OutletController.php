@@ -3,12 +3,18 @@
 namespace App\Http\Controllers\API;
 
 use App\Facades\MessageFixer;
+use App\Filters\Outlet\OutletId;
+use App\Filters\Outlet\Search;
+use App\Filters\Outlet\Slug;
+use App\Filters\Outlet\SortBy;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Outlet\OperationalHourRequest;
 use App\Http\Requests\API\Outlet\RegisterRequest;
 use App\Http\Requests\API\Outlet\UpdateRequest;
 use App\Models\Outlet;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,6 +25,53 @@ class OutletController extends Controller
     public function __construct()
     {
         $this->outlet = new Outlet();
+    }
+
+    public function index(Request $request)
+    {
+        $outlets = app(Pipeline::class)
+            ->send($this->outlet->query())
+            ->through([
+                Search::class,
+                OutletId::class,
+                Slug::class,
+                SortBy::class
+            ])
+            ->thenReturn()
+            ->paginate($request->per_page);
+
+        $outlets->getCollection()->transform(function ($outlet) {
+            $images = json_decode($outlet->images, true);
+            $imageConverts = [];
+            foreach ($images as $image) {
+                $imageConverts[] = asset(Storage::url($image));
+            }
+
+            $outlet->images = $imageConverts;
+            $outlet->operational_hour = json_decode($outlet->operational_hour, true);
+
+            return $outlet;
+        });
+
+        if (($request->has("outlet_id") && $request->outlet_id > 0) || ($request->has("slug") && $request->slug)) {
+            if (count($outlets->items()) < 1) {
+                return MessageFixer::error("Data outlet not found.");
+            }
+
+            return MessageFixer::render(MessageFixer::DATA_OK, "Success", $outlets[0]);
+        }
+
+        if (count($outlets->items()) < 1) {
+            return MessageFixer::error("Data outlet is empty.");
+        }
+
+        return MessageFixer::render(code: MessageFixer::DATA_OK, message: "Success", data: $outlets->items(), paginate: ($outlets instanceof LengthAwarePaginator) && count($outlets->items()) > 0  ? [
+            "current_page" => $outlets->currentPage(),
+            "last_page" => $outlets->lastPage(),
+            "total" => $outlets->total(),
+            "from" => $outlets->firstItem(),
+            "to" => $outlets->lastItem(),
+        ] : null);
     }
 
     public function register(RegisterRequest $request)

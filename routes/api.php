@@ -4,6 +4,7 @@ use App\Facades\MessageFixer;
 use App\Http\Controllers\API\AddressController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\ConfigController;
 use App\Http\Controllers\API\DistrictController;
 use App\Http\Controllers\API\OrderController;
 use App\Http\Controllers\API\OutletController;
@@ -30,7 +31,10 @@ Route::prefix('auth')->group(function () {
     });
 });
 
+
+Route::get('/outlet', [OutletController::class, 'index']);
 Route::middleware([XSignatureMiddleware::class])->group(function () {
+    Route::post('/config', ConfigController::class);
     Route::post('/category', [CategoryController::class, 'index']);
     Route::post('/product', [ProductController::class, 'index']);
 

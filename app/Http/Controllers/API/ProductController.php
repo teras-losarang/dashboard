@@ -7,6 +7,7 @@ use App\Filters\Product\OutletId;
 use App\Filters\Product\ProductId;
 use App\Filters\Product\Search;
 use App\Filters\Product\Slug;
+use App\Filters\Product\SortBy;
 use App\Filters\Product\Tags;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\API\Product\StoreRequest;
@@ -47,7 +48,8 @@ class ProductController extends Controller
                 Slug::class,
                 ProductId::class,
                 OutletId::class,
-                Tags::class
+                Tags::class,
+                SortBy::class
             ])
             ->thenReturn()
             ->paginate($request->per_page);
