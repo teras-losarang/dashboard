@@ -21,6 +21,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Number;
@@ -87,13 +88,18 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                ImageColumn::make('images')->label('Images')->stacked()->getStateUsing(fn($record) => json_decode($record->images, true)),
+                ImageColumn::make('images')->label('Images')->stacked()->getStateUsing(fn($record) => json_decode($record->images, true))->circular(),
                 TextColumn::make("name")->description(function (Product $product) {
                     return new HtmlString("
                         Outlet: {$product->outlet->name} <br>
                         Price: " . Number::currency($product->price, 'IDR', 'id') . "
                     ");
-                })->html(),
+                })->html()->searchable(),
+                TextColumn::make("enable_variant")->formatStateUsing(function ($state) {
+                    return $state ? "Yes" : "No";
+                })->label("Variants")->badge()->color(function ($state) {
+                    return $state ? "success" : "danger";
+                }),
                 ToggleColumn::make("status")->label("Status")->afterStateUpdated(function ($state, $record) {
                     Notification::make()
                         ->title('Update status successfully')
@@ -102,7 +108,15 @@ class ProductResource extends Resource
                 }),
             ])
             ->filters([
-                //
+                SelectFilter::make("enable_variant")->label("Enable Variant")->options([
+                    true => "Yes",
+                    false => "No"
+                ]),
+                SelectFilter::make("outlet_id")->label("Outlet")->relationship("outlet", "name"),
+                SelectFilter::make("status")->options([
+                    true => "Active",
+                    false => "Non Active"
+                ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

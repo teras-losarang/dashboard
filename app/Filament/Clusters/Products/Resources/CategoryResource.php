@@ -50,7 +50,7 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make("name")->description(fn($record): String => $record->description),
+                TextColumn::make("name")->description(fn($record): String => $record->description)->searchable(),
                 ImageColumn::make("image")->circular(),
                 ToggleColumn::make("status")->label("Status")->afterStateUpdated(function ($state, $record) {
                     Notification::make()
