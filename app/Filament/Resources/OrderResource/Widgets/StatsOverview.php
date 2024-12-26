@@ -18,7 +18,7 @@ class StatsOverview extends BaseWidget
         return [
             Stat::make('Total Order', $order->count()),
             Stat::make('Order Done', $orderDone->where('status', StatusTypeEnum::DONE)->count()),
-            Stat::make('Profit', str_replace(",00", "", Number::currency($order->sum('total'), 'IDR', 'id'))),
+            Stat::make('Profit', str_replace(",00", "", Number::currency($order->where('status', StatusTypeEnum::DONE)->sum('total'), 'IDR', 'id'))),
         ];
     }
 }
