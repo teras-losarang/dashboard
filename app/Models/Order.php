@@ -31,6 +31,11 @@ class Order extends Model
         return $this->hasOne(User::class, "id", "user_id");
     }
 
+    public function outlet(): HasOne
+    {
+        return $this->hasOne(Outlet::class, "id", "outlet_id");
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(OrderItem::class, "order_id", "id");

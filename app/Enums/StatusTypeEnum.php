@@ -21,4 +21,18 @@ class StatusTypeEnum
     {
         return self::all()[$id];
     }
+
+    public static function color($id)
+    {
+        switch ($id) {
+            case 1:
+                return 'primary';
+            case 88:
+                return 'danger';
+            case 99:
+                return 'success';
+            default:
+                return 'secondary';
+        }
+    }
 }

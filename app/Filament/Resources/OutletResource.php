@@ -23,6 +23,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -121,7 +122,7 @@ class OutletResource extends Resource
         return $table
             ->columns([
                 ImageColumn::make('images')->label('Thumbnail')->stacked()->getStateUsing(fn($record) => json_decode($record->images, true)),
-                TextColumn::make('name'),
+                TextColumn::make('name')->searchable(),
                 TextColumn::make('user.name')->label('Customer'),
                 ToggleColumn::make("status")->label("Status")->afterStateUpdated(function ($state, $record) {
                     Notification::make()
@@ -131,7 +132,11 @@ class OutletResource extends Resource
                 }),
             ])
             ->filters([
-                //
+                SelectFilter::make('status')->options([
+                    1 => 'Active',
+                    0 => 'Non Active'
+                ]),
+                SelectFilter::make('user_id')->relationship('user', 'name')->label('Customer')
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

@@ -32,7 +32,6 @@ Route::prefix('auth')->group(function () {
 });
 
 Route::middleware([XSignatureMiddleware::class])->group(function () {
-    Route::post('/config', ConfigController::class);
     Route::post('/category', [CategoryController::class, 'index']);
     Route::post('/product', [ProductController::class, 'index']);
     Route::post('/outlet', [OutletController::class, 'index']);
