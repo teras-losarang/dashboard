@@ -40,8 +40,8 @@ class AuthController extends Controller
             $roles = $user->roles->pluck("name")->toArray();
             $token = $user->createToken('api', $roles)->plainTextToken;
             $user->secret = $token;
-            $user->api_key = env("SECRET_API", "Not Set");
-            $user->map_key = env("MAPS_KEY", "Not Set");
+            $user->api_key = base64_encode(env("SECRET_API"));
+            $user->map_key = base64_encode(env("MAPS_KEY", "Not Set"));
 
             unset($user->roles);
 
@@ -85,20 +85,6 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * @OA\Post(
-     *      path="/api/auth/me",
-     *      operationId="Me",
-     *      tags={"Auth"},
-     *      summary="Me",
-     *      description="Me",
-     *      security={ {"sanctum": {} }},
-     *      @OA\Response(
-     *          response=200,
-     *          description="SUCCESS/ERROR by code in json result",
-     *       ),
-     *     )
-     */
     public function me()
     {
         $user = request()->user();
