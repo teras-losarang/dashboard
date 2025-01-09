@@ -125,12 +125,13 @@ class AuthController extends Controller
     {
         DB::beginTransaction();
 
-        $user = $this->user->whereEmail($request->email)->first();
-        if ($user) {
+        $userCheck = $this->user->whereEmail($request->email)->count();
+        if ($userCheck > 0) {
             return MessageFixer::render(code: MessageFixer::DATA_ERROR, message: 'Account already exists!');
         }
 
-        if ($user->phone == $request->phone) {
+        $userCheck = $this->user->wherePhone($request->phone)->count();
+        if ($userCheck > 0) {
             return MessageFixer::render(code: MessageFixer::DATA_ERROR, message: 'Account already exists!');
         }
 
