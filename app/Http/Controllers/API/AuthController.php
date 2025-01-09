@@ -22,36 +22,7 @@ class AuthController extends Controller
         $this->user = new User();
         $this->role = new Role();
     }
-
-    /**
-     * @OA\Post(
-     *      path="/api/auth/login",
-     *      operationId="Login",
-     *      tags={"Auth"},
-     *      summary="Login",
-     *      description="Login",
-     *     @OA\RequestBody(
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 @OA\Property(
-     *                     property="email",
-     *                     type="string"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="password",
-     *                     type="string"
-     *                 ),
-     *                 example={"email": "admin@mailinator.com", "password": "password"}
-     *             )
-     *         )
-     *     ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="SUCCESS/ERROR by code in json result",
-     *       ),
-     *     )
-     */
+    
     public function login(LoginRequest $request)
     {
         DB::beginTransaction();
@@ -69,6 +40,8 @@ class AuthController extends Controller
             $roles = $user->roles->pluck("name")->toArray();
             $token = $user->createToken('api', $roles)->plainTextToken;
             $user->secret = $token;
+            $user->api_key = env("SECRET_API", "Not Set");
+            $user->map_key = env("MAPS_KEY", "Not Set");
 
             unset($user->roles);
 
@@ -79,48 +52,7 @@ class AuthController extends Controller
             return MessageFixer::error($th->getMessage());
         }
     }
-
-    /**
-     * @OA\Post(
-     *      path="/api/auth/register",
-     *      operationId="Register",
-     *      tags={"Auth"},
-     *      summary="Register",
-     *      description="Register",
-     *     @OA\RequestBody(
-     *         @OA\MediaType(
-     *             mediaType="application/json",
-     *             @OA\Schema(
-     *                 @OA\Property(
-     *                     property="name",
-     *                     type="string"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="email",
-     *                     type="string"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="phone",
-     *                     type="string"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="password",
-     *                     type="string"
-     *                 ),
-     *                 @OA\Property(
-     *                     property="confirm_password",
-     *                     type="string"
-     *                 ),
-     *                 example={"name": "Test", "phone": "0987654321", "email": "test@mailinator.com", "password": "password", "confirm_password": "password"}
-     *             )
-     *         )
-     *     ),
-     *      @OA\Response(
-     *          response=200,
-     *          description="SUCCESS/ERROR by code in json result",
-     *       ),
-     *     )
-     */
+    
     public function register(RegisterRequest $request)
     {
         DB::beginTransaction();
