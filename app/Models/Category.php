@@ -18,6 +18,10 @@ class Category extends Model
         'image',
         'type',
         'status',
+        'enable_home',
+        'sort',
+        'direction',
+        'per_page',
     ];
 
     protected static function booted()

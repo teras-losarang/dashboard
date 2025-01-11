@@ -2,6 +2,7 @@
 
 namespace App\Filament\Clusters\Products\Resources;
 
+use App\Enums\CategoryDirectionEnum;
 use App\Enums\CategoryTypeEnum;
 use App\Filament\Clusters\Products;
 use App\Filament\Clusters\Products\Resources\CategoryResource\Pages;
@@ -11,6 +12,7 @@ use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\ToggleButtons;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -21,6 +23,7 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\DB;
 
 class CategoryResource extends Resource
 {
@@ -38,11 +41,17 @@ class CategoryResource extends Resource
             ->schema([
                 TextInput::make('name')->required(true)->maxLength(50),
                 TextInput::make('description')->required(true)->maxLength(150),
-                Select::make('type')->options(CategoryTypeEnum::all())->required(),
+                Select::make('type')->options(CategoryTypeEnum::all())->required()->live(),
                 FileUpload::make('image')->required(fn($record) => $record === null)
                     ->directory('categories')
                     ->image()
                     ->maxSize(2048),
+                ToggleButtons::make("enable_home")->label("Appears on the Home Page?")->boolean()->grouped()->icons([
+                    true => "heroicon-o-check",
+                    false => "heroicon-o-x-mark",
+                ])->required()->default(false)->live()->columnSpanFull()->visible(fn(callable $get) => in_array($get('type'), [CategoryTypeEnum::MENU, CategoryTypeEnum::DEFAULT])),
+                Select::make('direction')->label('Format Layout')->options(CategoryDirectionEnum::all())->required()->visible(fn(callable $get) => $get('enable_home')),
+                TextInput::make('per_page')->label('Total Product')->required(true)->minLength(0)->numeric()->maxLength(10)->default(0)->visible(fn(callable $get) => $get('enable_home')),
             ]);
     }
 
@@ -63,9 +72,40 @@ class CategoryResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('sort-up')->label('Up')->icon('heroicon-o-chevron-up')->color('info')->disabled(function ($record) {
+                    return $record->sort == 1;
+                })->action(function ($record) {
+                    DB::transaction(function () use ($record) {
+                        // Tukar sort dengan record sebelumnya
+                        $previous = Category::query()
+                            ->where('sort', $record->sort - 1)
+                            ->first();
+
+                        if ($previous) {
+                            $previous->update(['sort' => $record->sort]);
+                            $record->update(['sort' => $record->sort - 1]);
+                        }
+                    });
+                }),
+                Tables\Actions\Action::make('sort-down')->label('Down')->icon('heroicon-o-chevron-down')->color('info')->disabled(function ($record) {
+                    $lastSort = Category::query()->max('sort');
+                    return $record->sort == $lastSort;
+                })->action(function ($record) {
+                    DB::transaction(function () use ($record) {
+                        $next = Category::query()
+                            ->where('sort', $record->sort + 1)
+                            ->first();
+
+                        if ($next) {
+                            $next->update(['sort' => $record->sort]);
+                            $record->update(['sort' => $record->sort + 1]);
+                        }
+                    });
+                }),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
+            ->defaultSort('sort', 'asc')
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),

@@ -2,18 +2,16 @@
 
 namespace App\Enums;
 
-class CategoryTypeEnum
+class CategoryDirectionEnum
 {
-    const DEFAULT = 1;
-    const MENU = 2;
-    const BANNER = 3;
+    const HORIZONTAL = 1;
+    const VERTICAL = 2;
 
     public static function all(): array
     {
         return [
-            self::DEFAULT => "Default",
-            self::MENU => "Menu",
-            self::BANNER => "Banner",
+            self::HORIZONTAL => "Horizontal",
+            self::VERTICAL => "Vertical",
         ];
     }
 
