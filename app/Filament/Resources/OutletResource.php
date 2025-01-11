@@ -124,6 +124,7 @@ class OutletResource extends Resource
                 ImageColumn::make('images')->label('Thumbnail')->stacked()->getStateUsing(fn($record) => json_decode($record->images, true)),
                 TextColumn::make('name')->searchable(),
                 TextColumn::make('user.name')->label('Customer'),
+                TextColumn::make('favorite')->getStateUsing(fn($record) => $record->favorite->count())->numeric(),
                 ToggleColumn::make("status")->label("Status")->afterStateUpdated(function ($state, $record) {
                     Notification::make()
                         ->title('Update status successfully')

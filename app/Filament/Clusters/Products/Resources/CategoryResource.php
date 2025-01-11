@@ -20,10 +20,12 @@ use Filament\Tables;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class CategoryResource extends Resource
 {
@@ -59,7 +61,7 @@ class CategoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make("name")->description(fn($record): String => $record->description)->searchable(),
+                TextColumn::make("name")->description(fn($record): String => Str::limit($record->description, 50, '...'))->searchable(),
                 ImageColumn::make("image")->circular(),
                 ToggleColumn::make("status")->label("Status")->afterStateUpdated(function ($state, $record) {
                     Notification::make()
@@ -69,14 +71,13 @@ class CategoryResource extends Resource
                 }),
             ])
             ->filters([
-                //
+                SelectFilter::make("type")->options(CategoryTypeEnum::all())
             ])
             ->actions([
                 Tables\Actions\Action::make('sort-up')->label('Up')->icon('heroicon-o-chevron-up')->color('info')->disabled(function ($record) {
                     return $record->sort == 1;
                 })->action(function ($record) {
                     DB::transaction(function () use ($record) {
-                        // Tukar sort dengan record sebelumnya
                         $previous = Category::query()
                             ->where('sort', $record->sort - 1)
                             ->first();
@@ -85,6 +86,11 @@ class CategoryResource extends Resource
                             $previous->update(['sort' => $record->sort]);
                             $record->update(['sort' => $record->sort - 1]);
                         }
+
+                        Notification::make()
+                            ->title('Update sort change up successfully')
+                            ->success()
+                            ->send();
                     });
                 }),
                 Tables\Actions\Action::make('sort-down')->label('Down')->icon('heroicon-o-chevron-down')->color('info')->disabled(function ($record) {
@@ -100,6 +106,11 @@ class CategoryResource extends Resource
                             $next->update(['sort' => $record->sort]);
                             $record->update(['sort' => $record->sort + 1]);
                         }
+
+                        Notification::make()
+                            ->title('Update sort change down successfully')
+                            ->success()
+                            ->send();
                     });
                 }),
                 Tables\Actions\EditAction::make(),
