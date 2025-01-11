@@ -56,6 +56,8 @@ Route::middleware([XAuthMiddleware::class, XSignatureMiddleware::class])->group(
         Route::post('/show', [OutletController::class, 'show']);
         Route::post('/operational-hour', [OutletController::class, 'updateOperationalHour']);
         Route::post('/update', [OutletController::class, 'update']);
+        Route::post('/list-favorite', [OutletController::class, 'listFavorite']);
+        Route::post('/store-favorite', [OutletController::class, 'storeFavorite']);
     });
 
     Route::prefix('address')->group(function () {

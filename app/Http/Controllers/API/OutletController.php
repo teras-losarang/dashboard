@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Facades\MessageFixer;
+use App\Filters\Outlet\IsFavorite;
 use App\Filters\Outlet\OutletId;
 use App\Filters\Outlet\Search;
 use App\Filters\Outlet\Slug;
@@ -12,19 +13,22 @@ use App\Http\Requests\API\Outlet\OperationalHourRequest;
 use App\Http\Requests\API\Outlet\RegisterRequest;
 use App\Http\Requests\API\Outlet\UpdateRequest;
 use App\Models\Outlet;
+use App\Models\OutletFavorite;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Pipeline\Pipeline;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class OutletController extends Controller
 {
-    protected $outlet;
+    protected $outlet, $favorite;
 
     public function __construct()
     {
         $this->outlet = new Outlet();
+        $this->favorite = new OutletFavorite();
     }
 
     public function index(Request $request)
@@ -35,7 +39,8 @@ class OutletController extends Controller
                 Search::class,
                 OutletId::class,
                 Slug::class,
-                SortBy::class
+                SortBy::class,
+                IsFavorite::class
             ])
             ->thenReturn()
             ->paginate($request->per_page);
@@ -181,6 +186,53 @@ class OutletController extends Controller
 
             DB::commit();
             return MessageFixer::success("Outlet has been updated");
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return MessageFixer::error($th->getMessage());
+        }
+    }
+
+    public function listFavorite(Request $request)
+    {
+        $request->merge([
+            "is_favorite" => 1
+        ]);
+
+        return $this->index($request);
+    }
+
+    public function storeFavorite(Request $request)
+    {
+        DB::beginTransaction();
+
+        $validator = Validator::make($request->all(), [
+            'outlet_id' => 'required|exists:outlets,id',
+        ]);
+
+        if ($validator->fails()) {
+            return MessageFixer::render(message: "Fill data correctly!", code: MessageFixer::DATA_ERROR, data: $validator->errors());
+        }
+
+        $user = $request->user();
+
+        try {
+            DB::commit();
+
+            $favorite = $this->favorite->where([
+                "outlet_id" => $request->outlet_id,
+                "user_id" => $user->id
+            ])->first();
+
+            if ($favorite) {
+                $favorite->delete();
+                return MessageFixer::success("Outlet has been removed from favorite");
+            }
+
+            $this->favorite->create([
+                "outlet_id" => $request->outlet_id,
+                "user_id" => $user->id
+            ]);
+            return MessageFixer::success("Outlet has been added to favorite");
         } catch (\Throwable $th) {
             DB::rollBack();
             return MessageFixer::error($th->getMessage());

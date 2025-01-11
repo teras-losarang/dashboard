@@ -66,4 +66,9 @@ class Outlet extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
+
+    public function favorite(): HasMany
+    {
+        return $this->hasMany(OutletFavorite::class, 'outlet_id', 'id');
+    }
 }
